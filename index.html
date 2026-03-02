@@ -1,9 +1,29 @@
-﻿<!DOCTYPE html>
-<html>
-  <head>
-    <title>La mia immagine</title>
-  </head>
-  <body>
-    <img src="columns.jpg" alt="Prova immagine">
-  </body>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Il mio SWF</title>
+  <style>
+    body { margin:0; background:#000; height:100vh; }
+    #ruffle-container { width:100%; height:100vh; }
+  </style>
+</head>
+<body>
+  <div id="ruffle-container"></div>
+
+  <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+  <script>
+    window.RufflePlayer.config = {
+      "autoplay": "on",
+      "unmuteOverlay": "hidden",   // nasconde il popup "clicca per attivare audio"
+      "letterbox": "on"            // mantiene proporzioni originali
+    };
+
+    const container = document.getElementById("ruffle-container");
+    const player = RufflePlayer.newest().createPlayer();
+    container.appendChild(player);
+
+    player.load("vrml3.swf");   // ← cambia qui col nome/percorso reale
+  </script>
+</body>
 </html>
