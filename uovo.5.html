@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Museo VRML 2026 - Vista Interna</title>
+    
+    <link rel="stylesheet" type="text/css" href="x3dom.css">
+    <script type="text/javascript" src="x3dom.js"></script>
+    
+    <style>
+        body { margin: 0; background-color: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        x3d { width: 100vw; height: 100vh; border: none; display: block; }
+        
+        #pannello { 
+            position: absolute; top: 10px; left: 10px; 
+            background: rgba(0, 40, 80, 0.8); padding: 15px; 
+            border: 1px solid #0cf; border-radius: 8px; z-index: 10;
+            pointer-events: none;
+        }
+        kbd { background: #333; color: #0cf; padding: 2px 5px; border-radius: 3px; border: 1px solid #555; }
+        .info { font-size: 0.85em; margin-top: 8px; color: #ccc; }
+    </style>
+</head>
+<body onload="document.getElementById('museo-canvas').focus();">
+
+    <div id="pannello">
+        <h3 style="margin:0 0 5px 0;">Museo Ripristinato</h3>
+        <div>Muoviti: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> o <kbd>Frecce</kbd></div>
+        <div class="info">Modalità: <b>FLY / VOLO</b> (Passa attraverso i muri)</div>
+        <div class="info">Premi <kbd>M</kbd> per attivare la gravità (WALK)</div>
+    </div>
+
+    <x3d id="museo-canvas">
+        <scene>
+            <Viewpoint id="vista_iniziale" 
+                       position="-50.782 2.005 -73.587" 
+                       orientation="0.00017 -0.9999 -0.00015 1.705" 
+                       description="Ingresso Salvato"
+                       centerOfRotation="-50.782 2.005 -73.587">
+            </Viewpoint>
+
+            <NavigationInfo id="nav" type='"FLY" "WALK" "ANY"' 
+                            speed="2.0" 
+                            headlight="true">
+            </NavigationInfo>
+            
+            <Background skyColor='0.05 0.05 0.1'></Background>
+            <DirectionalLight direction='0 -1 -0.5' intensity='0.7'></DirectionalLight>
+
+            <Inline url="uovo5.x3d"></Inline>
+        </scene>
+    </x3d>
+
+    <script>
+        // Assicura che la tastiera funzioni cliccando ovunque
+        document.body.addEventListener('mousedown', function() {
+            document.getElementById('museo-canvas').focus();
+        }, false);
+    </script>
+
+</body>
+</html>
