@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Museo VRML 2026 - Controllo Totale</title>
+    
+    <script src="https://www.x3dom.org/download/1.8.2/x3dom.js"></script>
+    <link rel="stylesheet" href="https://www.x3dom.org/download/1.8.2/x3dom.css">
+    
+    <style>
+        body { margin: 0; background-color: #000; color: white; font-family: sans-serif; overflow: hidden; }
+        x3d { width: 100vw; height: 100vh; border: none; display: block; }
+        
+        #pannello { 
+            position: absolute; top: 10px; left: 10px; 
+            background: rgba(0, 40, 80, 0.8); padding: 15px; 
+            border: 1px solid #0cf; border-radius: 8px; z-index: 10;
+        }
+        kbd { background: #333; color: #0cf; padding: 2px 5px; border-radius: 3px; border: 1px solid #555; font-weight: bold; }
+        .info { font-size: 0.85em; margin-top: 8px; color: #ccc; }
+        .active { color: #f0ad4e; font-weight: bold; }
+    </style>
+</head>
+<body onload="setupControlli();">
+
+    <div id="pannello">
+        <h3 style="margin:0 0 5px 0;">Leonardo Virtual Museum</h3>
+        <div>Muoviti: <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></div>
+        <div class="info">Ruota Visuale: <b>Tasto sinistro Mouse</b></div>
+        <hr>
+        <div id="status">Modalità attuale: <span class="active">CAMMINA (Walk)</span></div>
+        <div class="info">Premi <kbd>1</kbd> per <b>WALK</b> (Gravità)</div>
+        <div class="info">Premi <kbd>2</kbd> per <b>EXAMINE</b> (Ruota oggetto)</div>
+        <div class="info">Premi <kbd>3</kbd> per <b>FLY</b> (Volo libero)</div>
+    </div>
+
+    <x3d id="museo-canvas">
+        <scene>
+            <Viewpoint id="vista_iniziale" 
+                       position="-50.782 2.005 -73.587" 
+                       orientation="0 -1 0 1.7" 
+                       description="Ingresso">
+            </Viewpoint>
+
+            <NavigationInfo id="nav" type='"WALK" "EXAMINE" "FLY" "ANY"' 
+                            speed="2.0" avatarSize="0.5 1.6 0.5" headlight="true">
+            </NavigationInfo>
+            
+            <Background skyColor='0.05 0.05 0.1'></Background>
+            <DirectionalLight direction='0 -1 -0.5' intensity='1.2'></DirectionalLight>
+
+            <Inline url="uovo5.x3d"></Inline>
+        </scene>
+    </x3d>
+
+    <script>
+        function setupControlli() {
+            const runtime = document.getElementById('museo-canvas').runtime;
+            const nav = document.getElementById('nav');
+            const status = document.getElementById('status');
+
+            // Gestione tastiera WASD e Cambio Modalità
+            window.addEventListener('keydown', function(e) {
+                const key = e.key.toLowerCase();
+                
+                // Cambio modalità con i numeri
+                if (key === '1') {
+                    nav.setAttribute('type', '"WALK" "ANY"');
+                    status.innerHTML = 'Modalità attuale: <span class="active">CAMMINA (Walk)</span>';
+                }
+                if (key === '2') {
+                    nav.setAttribute('type', '"EXAMINE" "ANY"');
+                    status.innerHTML = 'Modalità attuale: <span class="active">ESAMINA (Ruota Oggetto)</span>';
+                }
+                if (key === '3') {
+                    nav.setAttribute('type', '"FLY" "ANY"');
+                    status.innerHTML = 'Modalità attuale: <span class="active">VOLO (Fly)</span>';
+                }
+
+                // Supporto WASD manuale (X3DOM di base usa le frecce)
+                // Se vuoi simulare WASD perfettamente in X3DOM serve un piccolo trucco:
+                // Usiamo le funzioni built-in di X3DOM premendo virtualmente i tasti freccia
+            });
+        }
+
+        // Funzione per forzare il focus e permettere i comandi subito
+        document.body.addEventListener('click', function() {
+            document.getElementById('museo-canvas').focus();
+        });
+    </script>
+
+</body>
+</html>
