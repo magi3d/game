@@ -1,32 +1,84 @@
-﻿<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>AR Image Tracking - Carmine</title>
+
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  </head>
-  <body>
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-      <a-assets>
-        <video id="mioVideo" src="video.mp4" preload="auto" loop="true" crossorigin="anonymous" muted></video>
-      </a-assets>
+    
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; }
+        /* Schermata di caricamento personalizzata se vuoi */
+        #loading-screen {
+            position: absolute; z-index: 999; width: 100%; height: 100%;
+            background: #222; display: flex; justify-content: center; align-items: center;
+            color: white; font-family: sans-serif;
+        }
+    </style>
+</head>
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-video src="#mioVideo" width="1" height="1.2" position="0 0 0" rotation="0 0 0"></a-video>
-      </a-entity>
+<body>
+    <a-scene 
+        mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: yes;" 
+        embedded 
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights" 
+        vr-mode-ui="enabled: false" 
+        device-orientation-permission-ui="enabled: false">
+        
+        <a-assets timeout="30000">
+            <video id="arVideo" 
+                   src="video.mp4" 
+                   preload="auto" 
+                   loop="true" 
+                   crossorigin="anonymous" 
+                   muted 
+                   playsinline 
+                   webkit-playsinline>
+            </video>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0" id="target">
+            <a-video src="#arVideo" 
+                     width="1" 
+                     height="1.25" 
+                     position="0 0 0" 
+                     rotation="0 0 0">
+            </a-video>
+        </a-entity>
     </a-scene>
 
     <script>
-      // Fa partire il video solo quando l'immagine viene inquadrata
-      const targetEntity = document.querySelector('[mindar-image-target]');
-      const video = document.querySelector('#mioVideo');
-      targetEntity.addEventListener("targetFound", event => {
-        video.play();
-      });
-      targetEntity.addEventListener("targetLost", event => {
-        video.pause();
-      });
+        // Gestione degli eventi per far partire il video su Huawei/Android
+        const targetEntity = document.querySelector('#target');
+        const video = document.querySelector('#arVideo');
+
+        // Quando il marker viene trovato
+        targetEntity.addEventListener("targetFound", event => {
+            console.log("Target trovato!");
+            video.play();
+        });
+
+        // Quando il marker viene perso
+        targetEntity.addEventListener("targetLost", event => {
+            console.log("Target perso");
+            video.pause();
+        });
+
+        // Trucco per i browser mobili: il video parte solo dopo il primo tocco dell'utente
+        window.addEventListener('click', () => {
+            video.play();
+            // Lo mettiamo in pausa subito se il target non è ancora visibile
+            // Questo "sblocca" il permesso del browser per l'autoplay
+            if (!targetEntity.visible) {
+                video.pause();
+            }
+        }, { once: true });
     </script>
-  </body>
+</body>
 </html>
