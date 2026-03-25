@@ -1,0 +1,32 @@
+﻿<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      <a-assets>
+        <video id="mioVideo" src="video.mp4" preload="auto" loop="true" crossorigin="anonymous" muted></video>
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-video src="#mioVideo" width="1" height="1.2" position="0 0 0" rotation="0 0 0"></a-video>
+      </a-entity>
+    </a-scene>
+
+    <script>
+      // Fa partire il video solo quando l'immagine viene inquadrata
+      const targetEntity = document.querySelector('[mindar-image-target]');
+      const video = document.querySelector('#mioVideo');
+      targetEntity.addEventListener("targetFound", event => {
+        video.play();
+      });
+      targetEntity.addEventListener("targetLost", event => {
+        video.pause();
+      });
+    </script>
+  </body>
+</html>
