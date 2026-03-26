@@ -1,50 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+
     <style>
-        body { margin: 0; overflow: hidden; }
-        /* FIX SCHERMO NERO: Forza la scena a tutto schermo */
-        .a-canvas { width: 100% !important; height: 100% !important; top: 0 !important; left: 0 !important; position: absolute !important; }
+        /* FIX LAYOUT: Elimina bande nere e forza il pieno schermo */
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #000; 
+            width: 100vw; 
+            height: 100vh; 
+        }
+
+        /* Forza il componente della camera di A-Frame a riempire tutto lo spazio */
+        .a-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            top: 0 !important;
+            left: 0 !important;
+            position: absolute !important;
+            object-fit: cover;
+        }
+
+        /* Nasconde i pulsanti VR/AR di default che creano fastidio */
+        .a-enter-vr, .a-enter-ar { display: none; }
+
+        /* Messaggio di istruzioni a schermo */
+        #ui {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: sans-serif;
+            text-align: center;
+            pointer-events: none;
+        }
     </style>
 </head>
+
 <body>
+    <div id="ui">Inquadra l'immagine per vedere il video<br>(Tocca lo schermo se il video non parte)</div>
+
     <a-scene 
         mindar-image="imageTargetSrc: ./targets.mind; autoStart: true; uiLoading: no;" 
         embedded 
+        color-space="sRGB" 
+        renderer="colorManagement: true, physicallyCorrectLights" 
         vr-mode-ui="enabled: false" 
         device-orientation-permission-ui="enabled: false">
         
-        <a-assets>
-            <video id="vid" src="video.mp4" preload="auto" loop="true" crossorigin="anonymous" muted playsinline webkit-playsinline></video>
+        <a-assets timeout="30000">
+            <video id="arVideo" 
+                   src="video.mp4" 
+                   preload="auto" 
+                   loop="true" 
+                   crossorigin="anonymous" 
+                   muted 
+                   playsinline 
+                   webkit-playsinline>
+            </video>
         </a-assets>
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-entity mindar-image-target="targetIndex: 0" id="target">
-            <a-video src="#vid" width="1" height="1.3" position="0 0 0" rotation="0 0 0"></a-video>
+        <a-entity mindar-image-target="targetIndex: 0" id="targetEntity">
+            <a-video src="#arVideo" 
+                     width="1" 
+                     height="1.25" 
+                     position="0 0 0.01" 
+                     rotation="0 0 0">
+            </a-video>
         </a-entity>
     </a-scene>
 
     <script>
-        const video = document.querySelector('#vid');
-        const target = document.querySelector('#target');
+        const video = document.querySelector('#arVideo');
+        const target = document.querySelector('#targetEntity');
 
-        // SBLOCCO MANUALE (Huawei richiede un tocco per caricare il video in AR)
+        // 1. Sblocco manuale al primo tocco (NECESSARIO per Huawei)
         window.addEventListener('click', () => {
             video.play();
-            console.log("Video sbloccato");
+            console.log("Video sbloccato dall'utente");
+            document.querySelector('#ui').innerHTML = "Cercando il target...";
         }, { once: true });
 
+        // 2. Logica di riproduzione al tracciamento
         target.addEventListener("targetFound", () => {
-            console.log("Trovato!");
+            console.log("Target Riconosciuto!");
             video.play();
+            document.querySelector('#ui').style.display = "none";
         });
 
         target.addEventListener("targetLost", () => {
+            console.log("Target Perso");
             video.pause();
+            document.querySelector('#ui').style.display = "block";
+            document.querySelector('#ui').innerHTML = "Target perso. Inquadra di nuovo.";
         });
     </script>
 </body>
